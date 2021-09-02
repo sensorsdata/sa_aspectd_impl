@@ -1,5 +1,5 @@
 import 'package:aspectd/aspectd.dart';
-import 'package:aspectd_impl/sa_autotrack.dart';
+import 'sa_autotrack.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

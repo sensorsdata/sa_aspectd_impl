@@ -1,4 +1,4 @@
-name: aspectd_impl
+name: sa_aspectd_impl
 description: A new Flutter package project.
 version: 0.0.1
 author:
@@ -14,7 +14,7 @@ dependencies:
   # 添加神策 flutter plugin
   sensors_analytics_flutter_plugin: ^2.0.0
   aspectd:
-    path: ../flutter_aspectd
+    path: ../sa_flutter_aspectd
 #  flutter_deer:
 #    path: ../flutter_deer
 
