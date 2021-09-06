@@ -10,7 +10,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "0.0.3";
+  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.0";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
