@@ -346,6 +346,9 @@ class SensorsDataAPI {
   }
 
   void _getAppBar(Element element) {
+    if(element.widget is AppBar){
+      appTitleWidget = (element.widget as AppBar).title;
+    }
     if (element.widget == appTitleWidget) {
       _getElementContentByType(element);
       if (contentList.isNotEmpty) {
