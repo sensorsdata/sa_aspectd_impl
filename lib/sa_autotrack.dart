@@ -154,6 +154,12 @@ class SensorsDataAPI {
         _viewScreenWidget = screenCache._viewScreenWidget;
         _viewScreenContext = screenCache._viewScreenContext;
 
+        //Fix:Flutter Modular 2.x
+        if(_viewScreenWidget.runtimeType.toString() == '_DisposableWidget'){
+          dynamic tmp = _viewScreenWidget;
+          _viewScreenWidget = tmp.child(_viewScreenContext, null);
+        }
+
         ViewScreenEvent screenEvent = ViewScreenEvent();
         if (_viewScreenWidget is _SAHasCreationLocation) {
           _SAHasCreationLocation location =
