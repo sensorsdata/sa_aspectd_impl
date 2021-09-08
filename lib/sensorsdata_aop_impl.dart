@@ -152,6 +152,19 @@ class SensorsAnalyticsAOP {
     return widgetResult;
   }
 
+  @Execute("package:get/get_navigation/src/routes/default_route.dart",
+      "GetPageRoute", "-buildPage")
+  @pragma("vm:entry-point")
+  dynamic _trackGetPluginPageRoute(PointCut pointCut) {
+    dynamic target = pointCut.target;
+    dynamic context = pointCut.positionalParams[0];
+    dynamic widgetResult = pointCut.proceed();
+    dynamic realWidget = target.builder(context);
+    SensorsDataAPI.getInstance().trackViewScreen(
+        target, realWidget, pointCut.positionalParams[0]);
+    return widgetResult;
+  }
+
   ///适配 PageRouteBuilder
   ///目前发现当 hook PageRouteBuilder 的时候，具体使用 material、cupertio 对应的 route，
   ///与谁先 hook 有关系，应该是 AspectD 的一个 bug
