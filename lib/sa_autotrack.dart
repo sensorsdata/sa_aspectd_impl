@@ -456,11 +456,11 @@ class SensorsDataAPI {
 
   ///触发 BottomNavigationBar 的页面浏览事件
 
-  void trackBottomNavigationBarViewScreen(BottomNavigationBar? navigationBar) {
+  void trackBottomNavigationBarViewScreen(BottomNavigationBar? navigationBar, BuildContext context) {
     if (_timer != null && _timer!.isActive) {
       _timer!.cancel();
     }
-    _timer = Timer(Duration(milliseconds: 300), () {
+    _timer = Timer(Duration(milliseconds: 100), () {
       ViewScreenEvent viewScreenEvent = ViewScreenEvent();
       Widget? _viewScreenWidget = navigationBar;
       if (_viewScreenWidget is _SAHasCreationLocation) {
@@ -475,6 +475,16 @@ class SensorsDataAPI {
         _lastClickContent =
             navigationBar!.items[navigationBar.currentIndex].label;
       }
+      if (_lastClickContent == null) {
+        appBarTitle = null;
+        appTitleWidget = navigationBar!.items[navigationBar.currentIndex].title;
+        _getBottomNavigationBarWidget(context as Element);
+        _lastClickContent = appBarTitle;
+      }
+      if (_lastClickContent == null) {
+        _lastClickContent =
+            navigationBar!.items[navigationBar.currentIndex].tooltip;
+      }
       viewScreenEvent.title = _lastClickContent;
       viewScreenEvent.widgetName = "BottomNavigationBar";
       viewScreenEvent.routeName = _lastViewScreen?.routeName;
@@ -482,7 +492,20 @@ class SensorsDataAPI {
       _lastViewScreen = viewScreenEvent;
       Map map = viewScreenEvent.toSDKMap()!;
       SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
+      _lastClickContent = null;
     });
+  }
+
+  void _getBottomNavigationBarWidget(Element element) {
+    if (element.widget == appTitleWidget) {
+      _getElementContentByType(element);
+      if (contentList.isNotEmpty) {
+        String result = contentList.join("-");
+        appBarTitle = result;
+      }
+    } else {
+      element.visitChildElements(_getAppBar);
+    }
   }
 
   ///用来计算 Element 在 ListView, GridView 中的位置，既 $element_position 的值

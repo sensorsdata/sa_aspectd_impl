@@ -228,7 +228,7 @@ class SensorsAnalyticsAOP {
   void _trackBottomNavigationViewScreen(PointCut pointCut) {
     dynamic target = pointCut.target;
     pointCut.proceed();
-    SensorsDataAPI.getInstance().trackBottomNavigationBarViewScreen(target.widget);
+    SensorsDataAPI.getInstance().trackBottomNavigationBarViewScreen(target.widget, target.context);
   }
 
   @Execute("package:flutter/src/gestures/binding.dart", "GestureBinding",
