@@ -545,86 +545,86 @@ class SensorsDataAPI {
       dynamic widget = element.widget;
       //针对泛型类型，避免 is 关键字添加
       dynamic dynamicWidget = widget;
-      if (widget is RaisedButton && widget.onPressed != null) {
+      if (widget is RaisedButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is FlatButton && widget.onPressed != null) {
+      } else if (widget is FlatButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is FloatingActionButton && widget.onPressed != null) {
+      } else if (widget is FloatingActionButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is BottomNavigationBar && widget.onTap != null) {
+      } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is GestureDetector && widget.onTap != null) {
+      } else if (widget is GestureDetector && _checkOnTabNull(widget)) {
         finalResult = widget.child.runtimeType.toString();
-      } else if (widget is ListTile && widget.onTap != null) {
+      } else if (widget is ListTile && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is PopupMenuButton &&
           dynamicWidget.onSelected != null) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is PopupMenuButton && widget.onSelected != null) {
+      } else if (widget is PopupMenuButton && _checkOnSelectedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is OutlineButton && widget.onPressed != null) {
+      } else if (widget is OutlineButton && _checkOnPressedNull(widget)) {
         finalResult = "OutlineButton";
-      } else if (widget is InkWell && widget.onTap != null) {
+      } else if (widget is InkWell && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is BottomNavigationBar && widget.onTap != null) {
+      } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
       }
       //新增部分
-      else if (widget is BackButton && widget.onPressed != null) {
+      else if (widget is BackButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is CloseButton && widget.onPressed != null) {
+      } else if (widget is CloseButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoButton && widget.onPressed != null) {
+      } else if (widget is CupertinoButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is RawMaterialButton && widget.onPressed != null) {
+      } else if (widget is RawMaterialButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is DropdownMenuItem) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is DropdownButton &&
-          (widget.onChanged != null || widget.onTap != null)) {
+          (_checkOnChangedNull(widget) || _checkOnTabNull(widget))) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is CheckboxListTile && widget.onChanged != null) {
+      } else if (widget is CheckboxListTile && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is Checkbox && widget.onChanged != null) {
+      } else if (widget is Checkbox && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is PopupMenuItem) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CheckedPopupMenuItem) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is InputChip &&
-          (widget.onPressed != null || widget.onSelected != null)) {
+          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is RawChip &&
-          (widget.onPressed != null || widget.onSelected != null)) {
+          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is ChoiceChip && widget.onSelected != null) {
+      } else if (widget is ChoiceChip && _checkOnSelectedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is FilterChip && widget.onSelected != null) {
+      } else if (widget is FilterChip && _checkOnSelectedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is ActionChip && widget.onPressed != null) {
+      } else if (widget is ActionChip && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoActionSheetAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoContextMenuAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is Radio && widget.onChanged != null) {
+      } else if (widget is Radio && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is RadioListTile && widget.onChanged != null) {
+      } else if (widget is RadioListTile && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is SnackBarAction && widget.onPressed != null) {
+      } else if (widget is SnackBarAction && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is Switch && widget.onChanged != null) {
+      } else if (widget is Switch && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is SwitchListTile && widget.onChanged != null) {
+      } else if (widget is SwitchListTile && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoSwitch && widget.onChanged != null) {
+      } else if (widget is CupertinoSwitch && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is ToggleButtons && widget.onPressed != null) {
+      } else if (widget is ToggleButtons && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoContextMenuAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       }
 
@@ -956,7 +956,7 @@ class SensorsDataAPI {
       } else if (widget is DropdownMenuItem) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is DropdownButton &&
-          (widget.onChanged != null || _checkOnTabNull(widget))) {
+          (_checkOnChangedNull(widget) || _checkOnTabNull(widget))) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CheckboxListTile && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
@@ -968,10 +968,10 @@ class SensorsDataAPI {
       } else if (widget is CheckedPopupMenuItem) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is InputChip &&
-          (widget.onPressed != null || _checkOnSelectedNull(widget))) {
+          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is RawChip &&
-          (widget.onPressed != null || _checkOnSelectedNull(widget))) {
+          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is ChoiceChip && _checkOnSelectedNull(widget)) {
         finalResult = widget.runtimeType.toString();
@@ -980,10 +980,10 @@ class SensorsDataAPI {
       } else if (widget is ActionChip && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoActionSheetAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoContextMenuAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is Radio && _checkOnChangedNull(widget)) {
         finalResult = widget.runtimeType.toString();
@@ -1002,7 +1002,7 @@ class SensorsDataAPI {
       } else if (widget is ToggleButtons && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is CupertinoContextMenuAction &&
-          widget.onPressed != null) {
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       }
 
