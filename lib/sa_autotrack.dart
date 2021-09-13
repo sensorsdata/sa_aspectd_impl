@@ -366,6 +366,21 @@ class SensorsDataAPI {
     }
   }
 
+  void _getBottomAppBar(Element element) {
+    if(element.widget is AppBar){
+      appTitleWidget = (element.widget as AppBar).title;
+    }
+    if (element.widget == appTitleWidget) {
+      _getBottomAppBarElementContentByType(element);
+      if (bottomBarContentList.isNotEmpty) {
+        String result = bottomBarContentList.join("-");
+        appBarTitle = result;
+      }
+    } else {
+      element.visitChildElements(_getBottomAppBar);
+    }
+  }
+
   ///清除临时变量
   void _resetViewScreen() {
     this._tryRoute = null;
@@ -403,6 +418,7 @@ class SensorsDataAPI {
 
   ///用于拼装 element content
   List<String> contentList = [];
+  List<String> bottomBarContentList = [];
 
   ///element type 对应的 widget
   var elementTypeWidget;
@@ -471,40 +487,37 @@ class SensorsDataAPI {
               .replaceAll(location._salocation.rootUrl!, "");
         }
       }
-      if (_lastClickContent == null) {
-        _lastClickContent =
-            navigationBar!.items[navigationBar.currentIndex].label;
-      }
-      if (_lastClickContent == null) {
+      String? clickContent;
+      bottomBarContentList.clear();
+      clickContent = navigationBar!.items[navigationBar.currentIndex].label;
+      if (clickContent == null) {
         appBarTitle = null;
-        appTitleWidget = navigationBar!.items[navigationBar.currentIndex].title;
+        appTitleWidget = navigationBar.items[navigationBar.currentIndex].title;
         _getBottomNavigationBarWidget(context as Element);
-        _lastClickContent = appBarTitle;
+        clickContent = appBarTitle;
       }
-      if (_lastClickContent == null) {
-        _lastClickContent =
-            navigationBar!.items[navigationBar.currentIndex].tooltip;
+      if (clickContent == null) {
+        clickContent = navigationBar.items[navigationBar.currentIndex].tooltip;
       }
-      viewScreenEvent.title = _lastClickContent;
+      viewScreenEvent.title = clickContent;
       viewScreenEvent.widgetName = "BottomNavigationBar";
       viewScreenEvent.routeName = _lastViewScreen?.routeName;
       _printViewScreen(viewScreenEvent);
       _lastViewScreen = viewScreenEvent;
       Map map = viewScreenEvent.toSDKMap()!;
       SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
-      _lastClickContent = null;
     });
   }
 
   void _getBottomNavigationBarWidget(Element element) {
     if (element.widget == appTitleWidget) {
-      _getElementContentByType(element);
-      if (contentList.isNotEmpty) {
-        String result = contentList.join("-");
+      _getBottomAppBarElementContentByType(element);
+      if (bottomBarContentList.isNotEmpty) {
+        String result = bottomBarContentList.join("-");
         appBarTitle = result;
       }
     } else {
-      element.visitChildElements(_getAppBar);
+      element.visitChildElements(_getBottomAppBar);
     }
   }
 
@@ -665,6 +678,17 @@ class SensorsDataAPI {
       }
 
       element.visitChildElements(_getElementContentByType);
+    }
+  }
+
+  void _getBottomAppBarElementContentByType(Element? element) {
+    if (element != null) {
+      String? tmp = try2GetText(element.widget);
+      if (tmp != null) {
+        bottomBarContentList.add(tmp);
+        return;
+      }
+      element.visitChildElements(_getBottomAppBarElementContentByType);
     }
   }
 
