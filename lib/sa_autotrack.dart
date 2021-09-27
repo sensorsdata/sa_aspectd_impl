@@ -10,7 +10,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.0";
+  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.1";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
@@ -229,8 +229,8 @@ class SensorsDataAPI {
     Widget? _viewScreenWidget = widget;
     //如果是对话框路由
     //TODO 应该获取第一个自己创建的 Widget
+    String routeWidgetName = route.runtimeType.toString();
     if (route is PopupRoute) {
-      String routeWidgetName = route.runtimeType.toString();
       //print("====111===${routeWidgetName}");
       if (routeWidgetName.startsWith('CupertinoDialogRoute<') ||
           routeWidgetName.startsWith('CupertinoModalPopupRoute<') ||
@@ -277,7 +277,18 @@ class SensorsDataAPI {
         widget is Semantics) {
       _viewScreenWidget = widget.child;
     } else {
-      _viewScreenWidget = widget;
+      if(routeWidgetName.startsWith("GetPageRoute<")){
+        _SAHasCreationLocation tmp = widget as _SAHasCreationLocation;
+        if(tmp._salocation.isProjectRoot()){
+          _viewScreenWidget = widget;
+        } else if(widget is Semantics){
+          _viewScreenWidget = widget.child;
+        }else{
+          _viewScreenWidget = widget;
+        }
+      }else{
+        _viewScreenWidget = widget;
+      }
     }
 
     _ViewScreenCache screenCache = _ViewScreenCache();

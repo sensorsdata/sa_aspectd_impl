@@ -42,6 +42,17 @@ class SensorsAnalyticsAOP {
 
 
   //配合 sa_autotrack.dart 相关逻辑，用于替换 persistent frame callback
+  // @Execute("package:testdemo/main_old.dart", "_MyHomePageState",
+  //     "-_incrementCounter")
+  // @pragma("vm:entry-point")
+  // void _incrementCounterTest(PointCut pointCut) {
+  //   //SensorsDataAPI.getInstance().updateRoute();
+  //   print("1111");
+  //   pointCut.proceed();
+  //   print("2222");
+  // }
+
+  //配合 sa_autotrack.dart 相关逻辑，用于替换 persistent frame callback
   @Execute("package:flutter/src/scheduler/binding.dart", "SchedulerBinding",
       "-handleDrawFrame")
   @pragma("vm:entry-point")
@@ -156,6 +167,19 @@ class SensorsAnalyticsAOP {
       "GetPageRoute", "-buildPage")
   @pragma("vm:entry-point")
   dynamic _trackGetPluginPageRoute(PointCut pointCut) {
+    dynamic target = pointCut.target;
+    dynamic context = pointCut.positionalParams[0];
+    dynamic widgetResult = pointCut.proceed();
+    dynamic realWidget = target.builder(context);
+    SensorsDataAPI.getInstance().trackViewScreen(
+        target, realWidget, pointCut.positionalParams[0]);
+    return widgetResult;
+  }
+
+  @Execute("package:get/get_navigation/src/routes/get_transition_mixin.dart",
+      "GetPageRouteTransitionMixin", "-buildPage")
+  @pragma("vm:entry-point")
+  dynamic _trackGetPluginPageRoute2(PointCut pointCut) {
     dynamic target = pointCut.target;
     dynamic context = pointCut.positionalParams[0];
     dynamic widgetResult = pointCut.proceed();
