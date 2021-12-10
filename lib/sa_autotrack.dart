@@ -6,11 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sensors_analytics_flutter_plugin/sensors_analytics_autotrack.dart';
 import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugin.dart';
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.2";
+  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.3";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
@@ -155,7 +156,7 @@ class SensorsDataAPI {
         _viewScreenContext = screenCache._viewScreenContext;
 
         //Fix:Flutter Modular 2.x
-        if(_viewScreenWidget.runtimeType.toString() == '_DisposableWidget'){
+        if (_viewScreenWidget.runtimeType.toString() == '_DisposableWidget') {
           dynamic tmp = _viewScreenWidget;
           _viewScreenWidget = tmp.child(_viewScreenContext, null);
         }
@@ -169,6 +170,7 @@ class SensorsDataAPI {
             screenEvent.fileName = location._salocation.file!
                 .replaceAll(location._salocation.rootUrl!, "");
           }
+          screenEvent.importUri = location._salocation.importUri;
         }
 
         _findAppBar(_viewScreenContext as Element?);
@@ -180,10 +182,12 @@ class SensorsDataAPI {
         //需要确认 screenEvent page file url 如何获取
         _lastViewScreen = screenEvent;
         _printViewScreen(screenEvent);
-        Map map = screenEvent.toSDKMap()!;
         _setupLibPluginVersion();
+        _checkViewScreenImpl(screenEvent);
+        Map map = screenEvent.toSDKMap()!;
         SensorsAnalyticsFlutterPlugin.trackViewScreen(
-            map[r"$screen_name"], map as Map<String, dynamic>?);
+            map[r"$url"] ?? map[r"$screen_name"],
+            map as Map<String, dynamic>?);
         _routeViewScreenMap[_viewScreenRoute] = screenEvent;
         _tabIndexMap.clear();
         _resetViewScreen();
@@ -203,6 +207,7 @@ class SensorsDataAPI {
       SaLogger.p("====>viewscreen location tab===${location._salocation}");
       screenEvent.fileName = location._salocation.file!
           .replaceAll(location._salocation.rootUrl!, "");
+      screenEvent.importUri = location._salocation.importUri;
     }
     _findTargetTabWidget(_tabContext as Element?);
     if (contentText != null) {
@@ -214,7 +219,8 @@ class SensorsDataAPI {
     _printViewScreen(screenEvent, {"tab_index": _tabSelectedIndex});
     Map map = screenEvent.toSDKMap()!;
     _setupLibPluginVersion();
-    SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
+    SensorsAnalyticsFlutterPlugin.trackViewScreen(
+        map[r"$screen_name"], map as Map<String, dynamic>?);
     _resetViewScreen();
   }
 
@@ -234,7 +240,7 @@ class SensorsDataAPI {
       //print("====111===${routeWidgetName}");
       if (routeWidgetName.startsWith('CupertinoDialogRoute<') ||
           routeWidgetName.startsWith('CupertinoModalPopupRoute<') ||
-          routeWidgetName.startsWith( '_CupertinoModalPopupRoute<')) {
+          routeWidgetName.startsWith('_CupertinoModalPopupRoute<')) {
         if (widget is Semantics) {
           _viewScreenWidget = widget.child;
         } else {
@@ -277,16 +283,16 @@ class SensorsDataAPI {
         widget is Semantics) {
       _viewScreenWidget = widget.child;
     } else {
-      if(routeWidgetName.startsWith("GetPageRoute<")){
+      if (routeWidgetName.startsWith("GetPageRoute<")) {
         _SAHasCreationLocation tmp = widget as _SAHasCreationLocation;
-        if(tmp._salocation.isProjectRoot()){
+        if (tmp._salocation.isProjectRoot()) {
           _viewScreenWidget = widget;
-        } else if(widget is Semantics){
+        } else if (widget is Semantics) {
           _viewScreenWidget = widget.child;
-        }else{
+        } else {
           _viewScreenWidget = widget;
         }
-      }else{
+      } else {
         _viewScreenWidget = widget;
       }
     }
@@ -363,7 +369,7 @@ class SensorsDataAPI {
   }
 
   void _getAppBar(Element element) {
-    if(element.widget is AppBar){
+    if (element.widget is AppBar) {
       appTitleWidget = (element.widget as AppBar).title;
     }
     if (element.widget == appTitleWidget) {
@@ -378,7 +384,7 @@ class SensorsDataAPI {
   }
 
   void _getBottomAppBar(Element element) {
-    if(element.widget is AppBar){
+    if (element.widget is AppBar) {
       appTitleWidget = (element.widget as AppBar).title;
     }
     if (element.widget == appTitleWidget) {
@@ -483,7 +489,8 @@ class SensorsDataAPI {
 
   ///触发 BottomNavigationBar 的页面浏览事件
 
-  void trackBottomNavigationBarViewScreen(BottomNavigationBar? navigationBar, BuildContext context) {
+  void trackBottomNavigationBarViewScreen(
+      BottomNavigationBar? navigationBar, BuildContext context) {
     if (_timer != null && _timer!.isActive) {
       _timer!.cancel();
     }
@@ -497,6 +504,7 @@ class SensorsDataAPI {
           viewScreenEvent.fileName = location._salocation.file!
               .replaceAll(location._salocation.rootUrl!, "");
         }
+        viewScreenEvent.importUri = location._salocation.importUri;
       }
       String? clickContent;
       bottomBarContentList.clear();
@@ -516,7 +524,8 @@ class SensorsDataAPI {
       _printViewScreen(viewScreenEvent);
       _lastViewScreen = viewScreenEvent;
       Map map = viewScreenEvent.toSDKMap()!;
-      SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
+      SensorsAnalyticsFlutterPlugin.trackViewScreen(
+          map[r"$screen_name"], map as Map<String, dynamic>?);
     });
   }
 
@@ -573,7 +582,8 @@ class SensorsDataAPI {
         finalResult = widget.runtimeType.toString();
       } else if (widget is FlatButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is FloatingActionButton && _checkOnPressedNull(widget)) {
+      } else if (widget is FloatingActionButton &&
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
@@ -876,9 +886,16 @@ class SensorsDataAPI {
   /// 用于显示和 flutter inspector 上类似的路径
   void _getElementPath() {
     var listResult = <String>[];
+    print("start to getlement path===");
     RenderObject renderObject = hitTestEntry.target as RenderObject;
     DebugCreator debugCreator = renderObject.debugCreator as DebugCreator;
+
+    print("renderObject===${renderObject}");
+    print("debugCreator===${debugCreator}");
+
     Element element = debugCreator.element;
+    print("element===${element}");
+
     if (_shouldAddToPath(element)) {
       var result = "${element.widget.runtimeType.toString()}";
       int slot = 0;
@@ -955,7 +972,8 @@ class SensorsDataAPI {
         finalResult = widget.runtimeType.toString();
       } else if (widget is FlatButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is FloatingActionButton && _checkOnPressedNull(widget)) {
+      } else if (widget is FloatingActionButton &&
+          _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
@@ -1071,19 +1089,19 @@ class SensorsDataAPI {
     }
   }
 
-  bool _checkOnChangedNull(dynamic widget){
+  bool _checkOnChangedNull(dynamic widget) {
     return widget.onChanged != null;
   }
 
-  bool _checkOnPressedNull(dynamic widget){
+  bool _checkOnPressedNull(dynamic widget) {
     return widget.onPressed != null;
   }
 
-  bool _checkOnSelectedNull(dynamic widget){
+  bool _checkOnSelectedNull(dynamic widget) {
     return widget.onSelected != null;
   }
 
-  bool _checkOnTabNull(dynamic widget){
+  bool _checkOnTabNull(dynamic widget) {
     return widget.onTap != null;
   }
 
@@ -1107,7 +1125,8 @@ class SensorsDataAPI {
     // }
 
     if (_lastViewScreen != null) {
-      elementInfoMap.addAll(_lastViewScreen!.toSDKMap() as Map<String, dynamic>);
+      elementInfoMap
+          .addAll(_lastViewScreen!.toSDKMap(isClick: true) as Map<String, dynamic>);
     }
   }
 
@@ -1116,8 +1135,37 @@ class SensorsDataAPI {
     if (!hasAddedFlutterPluginVersion) {
       hasAddedFlutterPluginVersion = true;
       elementInfoMap[r"$lib_plugin_version"] = [
-        "flutter:$FLUTTER_AUTOTRACK_VERSION}"
+        "flutter:$FLUTTER_AUTOTRACK_VERSION"
       ];
+    }
+  }
+
+  ///判断页面是否实现了 ISensorsDataViewScreen 接口
+  void _checkViewScreenImpl(ViewScreenEvent viewScreenEvent) {
+    if (_viewScreenWidget != null &&
+        _viewScreenWidget is ISensorsDataViewScreen) {
+      ISensorsDataViewScreen sensorsDataViewScreen =
+          _viewScreenWidget as ISensorsDataViewScreen;
+      try {
+        viewScreenEvent.viewScreenName = sensorsDataViewScreen.viewScreenName;
+      } catch (e) {
+        viewScreenEvent.viewScreenName = null;
+      }
+      try {
+        viewScreenEvent.viewScreenTitle = sensorsDataViewScreen.viewScreenTitle;
+      } catch (e) {
+        viewScreenEvent.viewScreenTitle = null;
+      }
+      try {
+        viewScreenEvent.viewScreenUrl = sensorsDataViewScreen.viewScreenUrl;
+      } catch (e) {
+        viewScreenEvent.viewScreenUrl = null;
+      }
+      try {
+        viewScreenEvent.trackProperties = sensorsDataViewScreen.trackProperties;
+      } catch (e) {
+        viewScreenEvent.trackProperties = null;
+      }
     }
   }
 
@@ -1171,14 +1219,20 @@ class ViewScreenEvent {
   String? routeName;
   String? widgetName;
   String? fileName;
+  String? importUri;
   String? title;
-  Map<String, dynamic>? _sdkMap;
 
-  ViewScreenEvent({this.routeName, this.widgetName, this.fileName, this.title});
+  ///ISensorsDataViewScreen 中属性
+  String? viewScreenName;
+  String? viewScreenTitle;
+  String? viewScreenUrl;
+  Map<String, dynamic>? trackProperties;
+
+  ViewScreenEvent();
 
   @override
   String toString() {
-    return 'routeName: $routeName, \nwidgetName: $widgetName, \nfileName: $fileName, \ntitle: $title';
+    return 'ViewScreenEvent{routeName: $routeName, widgetName: $widgetName, fileName: $fileName, importUri: $importUri, title: $title}';
   }
 
   ///for debug
@@ -1191,14 +1245,32 @@ class ViewScreenEvent {
     };
   }
 
-  Map<String, dynamic>? toSDKMap() {
-    if (_sdkMap == null) {
-      _sdkMap = {
-        r"$screen_name": '$fileName/$widgetName',
-        r'$lib_method': "autoTrack"
-      };
-      if (title != null) {
-        _sdkMap![r"$title"] = '$title';
+  Map<String, dynamic>? toSDKMap({bool isClick = false}) {
+    String? result = fileName;
+    if (importUri != null) {
+      result = importUri;
+    }
+
+    Map<String, dynamic>? _sdkMap = {r'$lib_method': "autoTrack"};
+    if (viewScreenName != null) {
+      _sdkMap[r"$screen_name"] = '$viewScreenName';
+    } else {
+      _sdkMap[r"$screen_name"] = '$result/$widgetName';
+    }
+
+    if (viewScreenTitle != null) {
+      _sdkMap[r"$title"] = '$viewScreenTitle';
+    } else if (title != null) {
+      _sdkMap[r"$title"] = '$title';
+    }
+    if (!isClick) {
+      if (viewScreenUrl != null) {
+        _sdkMap[r"$url"] = '$viewScreenUrl';
+      } else{
+        _sdkMap[r"$url"] = '$result/$widgetName';
+      }
+      if (trackProperties != null) {
+        _sdkMap.addEntries(trackProperties!.entries);
       }
     }
     return _sdkMap;
@@ -1229,6 +1301,7 @@ class _SALocation {
   const _SALocation({
     this.file,
     this.rootUrl,
+    this.importUri,
     this.line,
     this.column,
     this.name,
@@ -1236,6 +1309,7 @@ class _SALocation {
   });
 
   final String? rootUrl;
+  final String? importUri;
   final String? file;
   final int? line;
   final int? column;
@@ -1269,7 +1343,7 @@ class _SALocation {
 
   @override
   String toString() {
-    return '_SALocation{rootUrl: $rootUrl, file: $file, line: $line, column: $column, name: $name}';
+    return '_SALocation{rootUrl: $rootUrl, importUri: $importUri, file: $file, line: $line, column: $column, name: $name, parameterLocations: $parameterLocations}';
   }
 }
 
@@ -1295,9 +1369,8 @@ class SaLogger {
   }
 
   /// 仅仅是打印结果
-  static void p(String str){
-    if (LOG_LEVEL.DEBUG.index >= logLevel.index)
-      print(str);
+  static void p(String str) {
+    if (LOG_LEVEL.DEBUG.index >= logLevel.index) print(str);
   }
 }
 
