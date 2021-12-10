@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   # 添加神策 flutter plugin
-  sensors_analytics_flutter_plugin: ^2.0.0
+  sensors_analytics_flutter_plugin: ^2.0.2
   aspectd:
     path: ../sa_flutter_aspectd
 #  flutter_deer:
