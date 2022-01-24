@@ -828,9 +828,13 @@ class SensorsDataAPI {
       var tmp1 = tmp.toString();
       if (tmp.text is TextSpan) {
         TextSpan textSpan = tmp.text as TextSpan;
-        String? fontFamily = textSpan.style!.fontFamily;
-        //对于系统提供的 Icon，其 family 都是统一的 MaterialIcons，当出现这种情况的时候就认为没有采集到文字信息，采集平级或者向上去找文字信息
-        if (fontFamily != "MaterialIcons") {
+        try {
+          String? fontFamily = textSpan.style?.fontFamily;
+          //对于系统提供的 Icon，其 family 都是统一的 MaterialIcons，当出现这种情况的时候就认为没有采集到文字信息，采集平级或者向上去找文字信息
+          if (fontFamily != "MaterialIcons") {
+            result = textSpan.toPlainText();
+          }
+        } catch(e) {
           result = textSpan.toPlainText();
         }
       }
