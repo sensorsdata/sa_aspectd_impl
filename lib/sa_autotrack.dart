@@ -186,8 +186,7 @@ class SensorsDataAPI {
         _checkViewScreenImpl(screenEvent);
         Map map = screenEvent.toSDKMap()!;
         SensorsAnalyticsFlutterPlugin.trackViewScreen(
-            map[r"$url"] ?? map[r"$screen_name"],
-            map as Map<String, dynamic>?);
+            map[r"$url"] ?? map[r"$screen_name"], map as Map<String, dynamic>?);
         _routeViewScreenMap[_viewScreenRoute] = screenEvent;
         _tabIndexMap.clear();
         _resetViewScreen();
@@ -832,10 +831,12 @@ class SensorsDataAPI {
           String? fontFamily = textSpan.style?.fontFamily;
           //对于系统提供的 Icon，其 family 都是统一的 MaterialIcons，当出现这种情况的时候就认为没有采集到文字信息，采集平级或者向上去找文字信息
           if (fontFamily != "MaterialIcons") {
-            result = textSpan.toPlainText();
+            result = textSpan.toPlainText(
+                includePlaceholders: false, includeSemanticsLabels: false);
           }
-        } catch(e) {
-          result = textSpan.toPlainText();
+        } catch (e) {
+          result = textSpan.toPlainText(
+              includePlaceholders: false, includeSemanticsLabels: false);
         }
       }
     } else if (widget is Tooltip) {
@@ -859,10 +860,16 @@ class SensorsDataAPI {
       var tmp1 = tmp.toString();
       if (tmp.text is TextSpan) {
         TextSpan textSpan = tmp.text as TextSpan;
-        String? fontFamily = textSpan.style?.fontFamily;
-        //对于系统提供的 Icon，其 family 都是统一的 MaterialIcons，当出现这种情况的时候就认为没有采集到文字信息，采集平级或者向上去找文字信息
-        if (fontFamily != "MaterialIcons") {
-          result = textSpan.toPlainText();
+        try {
+          String? fontFamily = textSpan.style?.fontFamily;
+          //对于系统提供的 Icon，其 family 都是统一的 MaterialIcons，当出现这种情况的时候就认为没有采集到文字信息，采集平级或者向上去找文字信息
+          if (fontFamily != "MaterialIcons") {
+            result = textSpan.toPlainText(
+                includePlaceholders: false, includeSemanticsLabels: false);
+          }
+        } catch (e) {
+          result = textSpan.toPlainText(
+              includePlaceholders: false, includeSemanticsLabels: false);
         }
       }
     } else if (widget is Tooltip) {
@@ -1129,8 +1136,8 @@ class SensorsDataAPI {
     // }
 
     if (_lastViewScreen != null) {
-      elementInfoMap
-          .addAll(_lastViewScreen!.toSDKMap(isClick: true) as Map<String, dynamic>);
+      elementInfoMap.addAll(
+          _lastViewScreen!.toSDKMap(isClick: true) as Map<String, dynamic>);
     }
   }
 
@@ -1270,7 +1277,7 @@ class ViewScreenEvent {
     if (!isClick) {
       if (viewScreenUrl != null) {
         _sdkMap[r"$url"] = '$viewScreenUrl';
-      } else{
+      } else {
         _sdkMap[r"$url"] = '$result/$widgetName';
       }
       if (trackProperties != null) {
