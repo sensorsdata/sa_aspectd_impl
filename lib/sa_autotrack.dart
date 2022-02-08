@@ -186,8 +186,7 @@ class SensorsDataAPI {
         _checkViewScreenImpl(screenEvent);
         Map map = screenEvent.toSDKMap()!;
         SensorsAnalyticsFlutterPlugin.trackViewScreen(
-            map[r"$url"] ?? map[r"$screen_name"],
-            map as Map<String, dynamic>?);
+            map[r"$url"] ?? map[r"$screen_name"], map as Map<String, dynamic>?);
         _routeViewScreenMap[_viewScreenRoute] = screenEvent;
         _tabIndexMap.clear();
         _resetViewScreen();
@@ -511,9 +510,19 @@ class SensorsDataAPI {
       clickContent = navigationBar!.items[navigationBar.currentIndex].label;
       if (clickContent == null) {
         appBarTitle = null;
-        appTitleWidget = navigationBar.items[navigationBar.currentIndex].title;
-        _getBottomNavigationBarWidget(context as Element);
-        clickContent = appBarTitle;
+        dynamic barItem = navigationBar.items[navigationBar.currentIndex];
+        try {
+          //适配 flutter 2.10.0 BottomNavigationBarItem API 的变化
+          appBarTitle = barItem.label;
+          if (appBarTitle == null) {
+            appBarTitle = barItem.tooltip;
+          }
+          clickContent = appBarTitle;
+        } catch (e) {
+          //flutter 2.10.0 之前的做法
+          appTitleWidget = barItem.title;
+          _getBottomNavigationBarWidget(context as Element);
+        }
       }
       if (clickContent == null) {
         clickContent = navigationBar.items[navigationBar.currentIndex].tooltip;
@@ -1125,8 +1134,8 @@ class SensorsDataAPI {
     // }
 
     if (_lastViewScreen != null) {
-      elementInfoMap
-          .addAll(_lastViewScreen!.toSDKMap(isClick: true) as Map<String, dynamic>);
+      elementInfoMap.addAll(
+          _lastViewScreen!.toSDKMap(isClick: true) as Map<String, dynamic>);
     }
   }
 
@@ -1266,7 +1275,7 @@ class ViewScreenEvent {
     if (!isClick) {
       if (viewScreenUrl != null) {
         _sdkMap[r"$url"] = '$viewScreenUrl';
-      } else{
+      } else {
         _sdkMap[r"$url"] = '$result/$widgetName';
       }
       if (trackProperties != null) {
