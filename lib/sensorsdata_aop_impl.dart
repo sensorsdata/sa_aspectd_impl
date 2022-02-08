@@ -289,7 +289,7 @@ class SensorsAnalyticsAOP {
   void _hookElementMount(PointCut pointCut) {
     Element element = pointCut.target as Element;
     pointCut.proceed();
-    if (kReleaseMode) {
+    if (kReleaseMode || kProfileMode) {
       element.renderObject!.debugCreator = DebugCreator(element);
     }
   }
@@ -300,7 +300,7 @@ class SensorsAnalyticsAOP {
   void _hookElementUpdate(PointCut pointCut) {
     Element element = pointCut.target as Element;
     pointCut.proceed();
-    if (kReleaseMode) {
+    if (kReleaseMode || kProfileMode) {
       element.renderObject!.debugCreator = DebugCreator(element);
     }
   }

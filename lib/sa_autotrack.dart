@@ -510,9 +510,19 @@ class SensorsDataAPI {
       clickContent = navigationBar!.items[navigationBar.currentIndex].label;
       if (clickContent == null) {
         appBarTitle = null;
-        appTitleWidget = navigationBar.items[navigationBar.currentIndex].title;
-        _getBottomNavigationBarWidget(context as Element);
-        clickContent = appBarTitle;
+        dynamic barItem = navigationBar.items[navigationBar.currentIndex];
+        try {
+          //适配 flutter 2.10.0 BottomNavigationBarItem API 的变化
+          appBarTitle = barItem.label;
+          if (appBarTitle == null) {
+            appBarTitle = barItem.tooltip;
+          }
+          clickContent = appBarTitle;
+        } catch (e) {
+          //flutter 2.10.0 之前的做法
+          appTitleWidget = barItem.title;
+          _getBottomNavigationBarWidget(context as Element);
+        }
       }
       if (clickContent == null) {
         clickContent = navigationBar.items[navigationBar.currentIndex].tooltip;
