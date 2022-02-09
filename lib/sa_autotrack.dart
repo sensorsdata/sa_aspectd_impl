@@ -460,17 +460,21 @@ class SensorsDataAPI {
       searchStop = false;
       elementInfoMap.clear();
       elementTypeWidget = null;
-      _getElementPath();
-      _getElementType();
-      if (!_isIgnoreClick()) {
-        _wrapElementContent();
-        _setupClickEventScreenInfo();
-        _printClick(elementInfoMap);
-        //elementInfoMap.removeWhere((key, value) => value == null);
-        elementInfoMap[r"$lib_method"] = "autoTrack";
-        _calculateListPosition();
-        _setupLibPluginVersion();
-        SensorsAnalyticsFlutterPlugin.track(r"$AppClick", elementInfoMap);
+      try {
+        _getElementPath();
+        _getElementType();
+        if (!_isIgnoreClick()) {
+          _wrapElementContent();
+          _setupClickEventScreenInfo();
+          _printClick(elementInfoMap);
+          //elementInfoMap.removeWhere((key, value) => value == null);
+          elementInfoMap[r"$lib_method"] = "autoTrack";
+          _calculateListPosition();
+          _setupLibPluginVersion();
+          SensorsAnalyticsFlutterPlugin.track(r"$AppClick", elementInfoMap);
+        }
+      } catch (e) {
+        SensorsAnalyticsFlutterPlugin.track("AppCrashed", {"app_crashed_reason": e.toString()});
       }
       _resetAppClick();
     }
@@ -907,15 +911,16 @@ class SensorsDataAPI {
   /// 用于显示和 flutter inspector 上类似的路径
   void _getElementPath() {
     var listResult = <String>[];
-    print("start to getlement path===");
+    //print("start to getlement path===");
     RenderObject renderObject = hitTestEntry.target as RenderObject;
     DebugCreator debugCreator = renderObject.debugCreator as DebugCreator;
 
-    print("renderObject===${renderObject}");
-    print("debugCreator===${debugCreator}");
-
+    //print("renderObject===${renderObject}");
+    //print("debugCreator===${debugCreator}");
+    //TODO 此处可能返回的值为空，具体什么时候为空，目前还未复现出来，后面需要额外关注
+    //JIRA: https://jira.sensorsdata.cn/browse/SDK-3556
     Element element = debugCreator.element;
-    print("element===${element}");
+    //print("element===${element}");
 
     if (_shouldAddToPath(element)) {
       var result = "${element.widget.runtimeType.toString()}";
