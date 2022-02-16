@@ -95,11 +95,12 @@ class SensorsAnalyticsAOP {
   @Execute(
       "package:flutter/src/widgets/navigator.dart", "_RouteEntry", "-handlePop")
   @pragma("vm:entry-point")
-  void _handlePop(PointCut pointCut) {
+  dynamic _handlePop(PointCut pointCut) {
     dynamic target = pointCut.target;
     dynamic previousPresent = pointCut.namedParams["previousPresent"];
-    pointCut.proceed();
+    dynamic result = pointCut.proceed();
     SensorsDataAPI.getInstance().didPop(target.route, previousPresent);
+    return result;
   }
 
   ///处理 route 的回调
