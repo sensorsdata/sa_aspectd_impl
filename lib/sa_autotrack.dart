@@ -11,7 +11,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.6";
+  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.7";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
@@ -182,11 +182,11 @@ class SensorsDataAPI {
         //需要确认 screenEvent page file url 如何获取
         _lastViewScreen = screenEvent;
         _printViewScreen(screenEvent);
-        _setupLibPluginVersion();
         _checkViewScreenImpl(screenEvent);
-        Map map = screenEvent.toSDKMap()!;
+        Map<String, dynamic>? map = screenEvent.toSDKMap()!;
+        _setupLibPluginVersion(map);
         SensorsAnalyticsFlutterPlugin.trackViewScreen(
-            map[r"$url"] ?? map[r"$screen_name"], map as Map<String, dynamic>?);
+            map[r"$url"] ?? map[r"$screen_name"], map);
         _routeViewScreenMap[_viewScreenRoute] = screenEvent;
         _tabIndexMap.clear();
         _resetViewScreen();
@@ -216,10 +216,9 @@ class SensorsDataAPI {
     screenEvent.routeName = _lastViewScreen?.routeName;
     _lastViewScreen = screenEvent;
     _printViewScreen(screenEvent, {"tab_index": _tabSelectedIndex});
-    Map map = screenEvent.toSDKMap()!;
-    _setupLibPluginVersion();
-    SensorsAnalyticsFlutterPlugin.trackViewScreen(
-        map[r"$screen_name"], map as Map<String, dynamic>?);
+    Map<String, dynamic>? map = screenEvent.toSDKMap()!;
+    _setupLibPluginVersion(map);
+    SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map);
     _resetViewScreen();
   }
 
@@ -470,11 +469,12 @@ class SensorsDataAPI {
           //elementInfoMap.removeWhere((key, value) => value == null);
           elementInfoMap[r"$lib_method"] = "autoTrack";
           _calculateListPosition();
-          _setupLibPluginVersion();
+          _setupLibPluginVersion(elementInfoMap);
           SensorsAnalyticsFlutterPlugin.track(r"$AppClick", elementInfoMap);
         }
       } catch (e) {
-        SensorsAnalyticsFlutterPlugin.track("AppCrashed", {"app_crashed_reason": e.toString()});
+        SensorsAnalyticsFlutterPlugin.track(
+            "AppCrashed", {"app_crashed_reason": e.toString()});
       }
       _resetAppClick();
     }
@@ -1157,12 +1157,10 @@ class SensorsDataAPI {
   }
 
   ///在触发的第一个事件中添加版本信息
-  void _setupLibPluginVersion() {
-    if (!hasAddedFlutterPluginVersion) {
+  void _setupLibPluginVersion(Map<String, dynamic>? map) {
+    if (!hasAddedFlutterPluginVersion && map != null) {
+      map[r"$lib_plugin_version"] = ["flutter:$FLUTTER_AUTOTRACK_VERSION"];
       hasAddedFlutterPluginVersion = true;
-      elementInfoMap[r"$lib_plugin_version"] = [
-        "flutter:$FLUTTER_AUTOTRACK_VERSION"
-      ];
     }
   }
 
