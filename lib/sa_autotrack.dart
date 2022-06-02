@@ -11,7 +11,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.8";
+  static const String FLUTTER_AUTOTRACK_VERSION = "1.0.9";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
@@ -609,8 +609,10 @@ class SensorsDataAPI {
         finalResult = widget.runtimeType.toString();
       } else if (widget is PopupMenuButton && _checkOnSelectedNull(widget)) {
         finalResult = widget.runtimeType.toString();
-      } else if (widget is OutlineButton && _checkOnPressedNull(widget)) {
+      } else if (widget.runtimeType.toString() == "OutlineButton" && _checkOnPressedNull(widget)) {
         finalResult = "OutlineButton";
+      } else if (widget.runtimeType.toString() == "OutlinedButton"  && _checkOnPressedNull(widget)) {
+        finalResult = "OutlinedButton";
       } else if (widget is InkWell && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
@@ -1014,8 +1016,10 @@ class SensorsDataAPI {
           dynamicWidget.onSelected != null) {
         finalResult = widget.runtimeType.toString();
         maybeContent = widget.tooltip;
-      } else if (widget is OutlineButton && _checkOnPressedNull(widget)) {
+      } else if (widget.runtimeType.toString() == "OutlineButton"  && _checkOnPressedNull(widget)) {
         finalResult = "OutlineButton";
+      } else if (widget.runtimeType.toString() == "OutlinedButton"  && _checkOnPressedNull(widget)) {
+        finalResult = "OutlinedButton";
       } else if (widget is InkWell && _checkOnTabNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
