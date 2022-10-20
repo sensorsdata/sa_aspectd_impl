@@ -11,7 +11,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 @pragma("vm:entry-point")
 class SensorsDataAPI {
-  static const String FLUTTER_AUTOTRACK_VERSION = "1.1.0";
+  static const String FLUTTER_AUTOTRACK_VERSION = "2.0.0";
   static final _instance = SensorsDataAPI._();
 
   ///判断是否已经添加了版本号 $lib_plugin_version
@@ -587,97 +587,7 @@ class SensorsDataAPI {
     //
     Element? finalContainerElement;
     element.visitAncestorElements((element) {
-      String? finalResult;
-      dynamic widget = element.widget;
-      //针对泛型类型，避免 is 关键字添加
-      dynamic dynamicWidget = widget;
-      if (widget is RaisedButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is FlatButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is FloatingActionButton &&
-          _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is GestureDetector && _checkOnTabNull(widget)) {
-        finalResult = widget.child.runtimeType.toString();
-      } else if (widget is ListTile && _checkOnTabNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is PopupMenuButton &&
-          dynamicWidget.onSelected != null) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is PopupMenuButton && _checkOnSelectedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget.runtimeType.toString() == "OutlineButton" && _checkOnPressedNull(widget)) {
-        finalResult = "OutlineButton";
-      } else if (widget.runtimeType.toString() == "OutlinedButton"  && _checkOnPressedNull(widget)) {
-        finalResult = "OutlinedButton";
-      } else if (widget is InkWell && _checkOnTabNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is BottomNavigationBar && _checkOnTabNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      }
-      //新增部分
-      else if (widget is BackButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CloseButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is RawMaterialButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is DropdownMenuItem) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is DropdownButton &&
-          (_checkOnChangedNull(widget) || _checkOnTabNull(widget))) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CheckboxListTile && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is Checkbox && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is PopupMenuItem) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CheckedPopupMenuItem) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is InputChip &&
-          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is RawChip &&
-          (_checkOnPressedNull(widget) || _checkOnSelectedNull(widget))) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is ChoiceChip && _checkOnSelectedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is FilterChip && _checkOnSelectedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is ActionChip && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoActionSheetAction &&
-          _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoContextMenuAction &&
-          _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is Radio && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is RadioListTile && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is SnackBarAction && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is Switch && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is SwitchListTile && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoSwitch && _checkOnChangedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is ToggleButtons && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is CupertinoContextMenuAction &&
-          _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      }
-
-      if (finalResult != null) {
+      if(element.widget is GestureDetector){
         finalContainerElement = element;
         return false;
       }
@@ -996,9 +906,7 @@ class SensorsDataAPI {
       Widget widget = element.widget;
       //针对泛型类型，避免 is 关键字添加
       dynamic dynamicWidget = widget;
-      if (widget is RaisedButton && _checkOnPressedNull(widget)) {
-        finalResult = widget.runtimeType.toString();
-      } else if (widget is FlatButton && _checkOnPressedNull(widget)) {
+      if (widget is TextButton && _checkOnPressedNull(widget)) {
         finalResult = widget.runtimeType.toString();
       } else if (widget is FloatingActionButton &&
           _checkOnPressedNull(widget)) {
@@ -1330,6 +1238,7 @@ class _SALocation {
     this.file,
     this.rootUrl,
     this.importUri,
+    this.isProject,
     this.line,
     this.column,
     this.name,
@@ -1343,13 +1252,9 @@ class _SALocation {
   final int? column;
   final String? name;
   final List<_SALocation>? parameterLocations;
+  final bool? isProject;
 
-  bool isProjectRoot() {
-    if (rootUrl == null || file == null) {
-      return false;
-    }
-    return file!.startsWith(rootUrl!);
-  }
+  bool isProjectRoot() => isProject ?? false;
 
   Map<String, Object?> toJsonMap() {
     final Map<String, Object?> json = <String, Object?>{
