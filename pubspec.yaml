@@ -1,6 +1,6 @@
 name: sa_aspectd_impl
 description: A new Flutter package project.
-version: 2.0.0
+version: 2.1.0
 author:
 homepage:
 
@@ -12,9 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   # 添加神策 flutter plugin
-  # sensors_analytics_flutter_plugin: ^2.1.1
-  sensors_analytics_flutter_plugin:
-    path: /Users/zhangwei/Documents/work/flutter_workspace/sensors_analytics_flutter_plugin
+  sensors_analytics_flutter_plugin: ^2.3.0
 
 dev_dependencies:
   flutter_test:
