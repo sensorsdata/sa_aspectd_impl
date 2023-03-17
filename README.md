@@ -10,13 +10,13 @@
 
 ## SDK 简介
 
-SensorsAnalytics SDK 是国内第一家开源商用版用户行为采集 SDK，目前支持代码埋点、全埋点、App 点击图、可视化全埋点等。目前已累计有 1500 多家付费客户，2500+ 的 App 集成使用，作为 App 数据采集利器，致力于帮助客户挖掘更多的商业价值，为其精准运营和业务支撑提供了可靠的数据来源。其采集全面而灵活、性能良好，并一直保持稳定的迭代，经受住了时间和客户的考验。
+Flutter 全埋点 SDK 是一款支持 Flutter 项目进行全埋点(应用启动、退出、元素点击、页面切换)事件采集及可视化全埋点功能的 SDK
 
 ## Flutter 全埋点支持的版本
 Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10.3、2.10.5、3.0.0、3.0.5、3.3.0、3.3.1、3.3.4、3.3.5`
 
 ## 集成文档
-请参考神策官网 [Flutter 全埋点 SDK 集成文档](https://manual.sensorsdata.cn/sa/latest/flutter-22257963.html)。
+请参考神策官网 [Flutter 全埋点 SDK 集成文档](https://manual.sensorsdata.cn/sa/latest/flutter-109576726.html)。
 
 ## 讨论  
 | 扫码加入 Flutter 埋点讨论群（备注 AspectD） |
@@ -35,7 +35,7 @@ Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10
 
 ## License  
 
-Copyright 2015－2022 Sensors Data Inc.
+Copyright 2015－2023 Sensors Data Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

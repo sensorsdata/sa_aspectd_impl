@@ -37,7 +37,8 @@ class SensorsAnalyticsVisualized {
   ///获取可视化全埋点的状态
   ///如果 sdk 没初始化调用此方法，native 理论上应该返回 false，不要返回异常
   static Future<void> updateVisualizedStatus() async {
-    _isVisualizedConnected = await ChannelManager.getInstance().methodChannel.invokeMethod("getVisualizedConnectionStatus");
+    dynamic result = await ChannelManager.getInstance().methodChannel.invokeMethod("getVisualizedConnectionStatus");
+    _isVisualizedConnected = result ?? false;
   }
 
   static bool get isVisualizedConnected => _isVisualizedConnected;
