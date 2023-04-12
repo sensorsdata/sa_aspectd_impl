@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugin.dart';
 
 import '../common/sensorsdata_common.dart';
 import '../common/sensorsdata_logger.dart';
-import '../common/sensorsdata_page_info.dart';
+import '../config/sensorsdata_autotrack_config.dart';
 import '../sa_autotrack.dart' show hasCreationLocation, getLocationInfo;
 import '../visualized/sensorsdata_visualized.dart';
 import '../visualized/sensorsdata_visualized_channel.dart';
@@ -33,6 +32,9 @@ class BottomBarViewScreenResolver {
 
   void trackBottomNavigationBarViewScreen(BottomNavigationBar? navigationBar, BuildContext context) {
     try {
+      if (!SensorsAnalyticsAutoTrackConfig.getInstance().isBottomAndTabBarPageViewEnabled) {
+        return;
+      }
       if (_timer != null && _timer!.isActive) {
         _timer!.cancel();
       }
@@ -76,9 +78,11 @@ class BottomBarViewScreenResolver {
         viewScreenEvent.routeName = ViewScreenFactory.getInstance().lastViewScreen?.routeName;
         viewScreenEvent.updateTime = DateTime.now().millisecondsSinceEpoch;
         Map map = viewScreenEvent.toSDKMap()!;
-        SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
+        ViewScreenFactory.getInstance().flushBeforeViewScreenObserver();
+        ViewScreenFactory.getInstance().trackViewScreenEvent(map[r"$screen_name"], map as Map<String, dynamic>?);
         TabViewScreenResolver.getInstance().resetIndex();
         ViewScreenFactory.getInstance().bottomBarView = viewScreenEvent;
+        ViewScreenFactory.getInstance().flushAfterViewScreenObserver();
         VisualizedStatusManager.getInstance().updatePageRefresh(false, forceUpdate: SensorsAnalyticsVisualized.isVisualizedConnected);
       });
     } catch (e, s) {

@@ -22,7 +22,7 @@ class SensorsDataAPI {
   ///通过 [SchedulerBinding.instance?.addPersistentFrameCallback] 添加的回调
   void persistentFrameCallback(Duration timeStamp) {
     try {
-      RouteViewScreenResolver.getInstance().persistentFrameCallback(timeStamp);
+      // RouteViewScreenResolver.getInstance().persistentFrameCallback(timeStamp);
       TabViewScreenResolver.getInstance().persistentFrameCallback(timeStamp);
     } catch (e, s) {
       SaLogger.e("SensorsAnalytics Exception Report", stackTrace: s, error: e);
