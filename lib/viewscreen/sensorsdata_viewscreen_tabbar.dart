@@ -1,24 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:sa_aspectd_impl/common/sensorsdata_logger.dart';
 import 'package:sa_aspectd_impl/config/sensorsdata_autotrack_config.dart';
-import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugin.dart';
 
 import '../common/sensorsdata_common.dart';
-import '../common/sensorsdata_page_info.dart';
 import '../sa_autotrack.dart' show hasCreationLocation, getLocationInfo;
 import '../visualized/sensorsdata_visualized.dart';
 import '../visualized/sensorsdata_visualized_channel.dart';
 import 'sensorsdata_viewscreen.dart';
-import 'sensorsdata_viewscreen_route.dart';
 
 @pragma("vm:entry-point")
 class TabViewScreenResolver {
+  ///key 是 _TabBarState 对应的 hasCode, value _TabStatusEntity 是当前 Tab 对应的状态信息
+  Map<int, _TabStatusEntity> _tabStateWithIndexMap = {};
+
   ///上一个 Tab 对应的 index，如果 index 相同，则不应该触发页面浏览
   ///如果 _tabBar 不同，那么 _lastTabIndex 也需要设置为默认值
-  int _lastTabIndex = -1;
   bool _isHandling = false;
 
   ///通常用于搜索相对应的 Tab Widget
@@ -39,10 +37,29 @@ class TabViewScreenResolver {
     //SaLogger.p("persistent frame callback====");
   }
 
-  void trackTabViewScreen(Widget? tabBarWidget, BuildContext? context, int index) {
+  void handleTabControllerTick(int tabBarStateHasCode, int index) {
+    var state = _tabStateWithIndexMap[tabBarStateHasCode];
+    if (state == null || state.isIndexChanged) {
+      return;
+    }
+    if (state.currentIndex != index) {
+      state.isIndexChanged = true;
+    }
+  }
+
+  void trackTabViewScreen(int tabBarStateHasCode, Widget? tabBarWidget, BuildContext? context, int index) {
     try {
-      if (!SensorsAnalyticsAutoTrackConfig.getInstance().isTabBarPageViewEnabled) {
+      if (!SensorsAnalyticsAutoTrackConfig.getInstance().isBottomAndTabBarPageViewEnabled) {
         return;
+      }
+      var state = _tabStateWithIndexMap[tabBarStateHasCode];
+      if (state != null && !state.isIndexChanged) {
+        return;
+      } else if (state == null) {
+        state = _TabStatusEntity();
+        state.isIndexChanged = true;
+        state.tabBarStateHasCode = tabBarStateHasCode;
+        _tabStateWithIndexMap[tabBarStateHasCode] = state;
       }
       if (_timer != null && _timer!.isActive) {
         _timer!.cancel();
@@ -50,10 +67,10 @@ class TabViewScreenResolver {
       } else if (_isHandling) {
         return;
       }
-
       _timer = Timer(Duration(milliseconds: 100), () {
         _isHandling = true;
-        if (index != _lastTabIndex) {
+
+        if (state!.isIndexChanged) {
           TabBar tabBar = tabBarWidget! as TabBar;
           Widget tabItemWidget = tabBar.tabs[index];
           _findTargetTabWidget(context! as Element, tabItemWidget);
@@ -76,22 +93,28 @@ class TabViewScreenResolver {
             SAUtils.setupLibPluginVersion(map);
 
             //如果引用值为空，表示第一次使用，对于第一次使用，做一个延迟处理，保障 bottom_navigation_bar 先触发
-            if (_lastTabIndex == -1) {
+            if (state.currentIndex == -1) {
               Future.delayed(Duration(milliseconds: 500), () {
                 screenEvent.updateTime = DateTime.now().millisecondsSinceEpoch;
-                SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map);
-                _lastTabIndex = index;
-                screenEvent.currentTabIndex = _lastTabIndex;
+                ViewScreenFactory.getInstance().flushBeforeViewScreenObserver();
+                ViewScreenFactory.getInstance().trackViewScreenEvent(map[r"$screen_name"], map);
+                state!.currentIndex = index;
+                state.isIndexChanged = false;
+                screenEvent.currentTabIndex = state.currentIndex!;
                 ViewScreenFactory.getInstance().tabBarView = screenEvent;
+                ViewScreenFactory.getInstance().flushAfterViewScreenObserver();
                 VisualizedStatusManager.getInstance().updatePageRefresh(false, forceUpdate: SensorsAnalyticsVisualized.isVisualizedConnected);
                 _resetViewScreen();
               });
             } else {
               screenEvent.updateTime = DateTime.now().millisecondsSinceEpoch;
-              SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map);
-              _lastTabIndex = index;
-              screenEvent.currentTabIndex = _lastTabIndex;
+              ViewScreenFactory.getInstance().flushBeforeViewScreenObserver();
+              ViewScreenFactory.getInstance().trackViewScreenEvent(map[r"$screen_name"], map);
+              state.currentIndex = index;
+              state.isIndexChanged = false;
+              screenEvent.currentTabIndex = state.currentIndex!;
               ViewScreenFactory.getInstance().tabBarView = screenEvent;
+              ViewScreenFactory.getInstance().flushAfterViewScreenObserver();
               VisualizedStatusManager.getInstance().updatePageRefresh(false, forceUpdate: SensorsAnalyticsVisualized.isVisualizedConnected);
               _resetViewScreen();
             }
@@ -107,11 +130,17 @@ class TabViewScreenResolver {
     }
   }
 
+  ///删除对应的值
+  void dispose(int targetHasCode) {
+    _tabStateWithIndexMap.remove(targetHasCode);
+  }
+
   void _findTargetTabWidget(Element element, Widget tabItemWidget) {
     if (_isFoundTargetTab) {
       return;
     }
-    if (element.widget is GestureDetector) {//TODO instead of [SAUtils.isGestureDetector] ?
+    if (element.widget is GestureDetector) {
+      //TODO instead of [SAUtils.isGestureDetector] ?
       _lastGestureDetectorElement = element;
     }
     if (element.widget == tabItemWidget) {
@@ -136,6 +165,21 @@ class TabViewScreenResolver {
 
   ///当页面浏览发生变化时，例如路由跳转、或者 bottom navigation bar 点击等，需要重置 tab index
   void resetIndex({int? currentIndex}) {
-    _lastTabIndex = currentIndex ?? -1;
+    //_lastTabIndex = currentIndex ?? -1;
   }
+}
+
+///记录 Tab 的状态
+class _TabStatusEntity {
+  ///哈希值
+  int? tabBarStateHasCode;
+
+  ///当前选中的值
+  int currentIndex = -1;
+
+  ///前一个
+  int previousIndex = -1;
+
+  ///标志状态是否发生变化，当 currentIndex 值变动的时候，需要更改
+  bool isIndexChanged = false;
 }

@@ -3,6 +3,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 import '../common/sensorsdata_common.dart';
 import '../common/sensorsdata_logger.dart';
+import '../config/sensorsdata_autotrack_config.dart';
 import '../visualized/sensorsdata_visualized.dart';
 import 'sensorsdata_viewscreen_tabbar.dart';
 
@@ -12,13 +13,41 @@ class ViewScreenFactory {
   ///Route、Tab、BottomBar 负责更新
 
   ///通过 Route 路由跳转产生的页面浏览事件
-  ViewScreenEvent? lastRouteViewScreen;
+  ViewScreenEvent? _lastRouteViewScreen;
 
   static final _instance = ViewScreenFactory._();
 
   ViewScreenFactory._();
 
   factory ViewScreenFactory.getInstance() => _instance;
+
+  ViewScreenEvent? get lastRouteViewScreen => _lastRouteViewScreen;
+
+  set lastRouteViewScreen(ViewScreenEvent? viewScreenEvent) {
+    flushBeforeViewScreenObserver();
+    this._lastRouteViewScreen = viewScreenEvent;
+    flushAfterViewScreenObserver();
+  }
+
+  List<ViewScreenObserver> _viewScreenObservers = [];
+
+  void addViewScreenObserver(ViewScreenObserver observer) {
+    if (!_viewScreenObservers.contains(observer)) {
+      _viewScreenObservers.add(observer);
+    }
+  }
+
+  void flushBeforeViewScreenObserver() {
+    _viewScreenObservers.forEach((element) {
+      element.onBeforeViewScreen(lastViewScreen);
+    });
+  }
+
+  void flushAfterViewScreenObserver() {
+    _viewScreenObservers.forEach((element) {
+      element.onAfterViewScreen(lastViewScreen);
+    });
+  }
 
   ///设置 bottom 页面浏览
   set bottomBarView(ViewScreenEvent? viewScreen) {
@@ -80,7 +109,7 @@ class ViewScreenFactory {
 
   ///根据 ViewScreenEvent 来判断
   ///特别是通过路由返回的时候，要触发对应页面中保存的 bottom 和 tab 的页面浏览
-  void trackViewScreen(ViewScreenEvent? viewScreenEvent) {
+  void trackViewScreenForBack(ViewScreenEvent? viewScreenEvent) {
     tryCatchLambda(() {
       if (viewScreenEvent != null) {
         List<ViewScreenEvent> pageList = [];
@@ -111,11 +140,19 @@ class ViewScreenFactory {
           }
           Map map = lastEvent.toSDKMap()!;
           VisualizedStatusManager.getInstance().updatePageRefresh(false);
-          SensorsAnalyticsFlutterPlugin.trackViewScreen(map[r"$screen_name"], map as Map<String, dynamic>?);
+          trackViewScreenEvent(map[r"$screen_name"], map as Map<String, dynamic>?);
           TabViewScreenResolver.getInstance().resetIndex(currentIndex: tabIndex); //TODO 应该判断当前触发的是不是 tab 事件，如果是的话，就重新设定 index 索引
         }
       }
     });
+  }
+
+  ///触发页面浏览事件，在此会判断页面浏览功能是否可用。如果不可用就不触发页面浏览
+  void trackViewScreenEvent(String url, Map<String, dynamic>? properties) async {
+    bool isIgnored = await SensorsAnalyticsAutoTrackConfig.getInstance().isAutoTrackViewScreenIgnored();
+    if (!isIgnored) {
+      SensorsAnalyticsFlutterPlugin.trackViewScreen(url, properties);
+    }
   }
 
   void printViewScreen(ViewScreenEvent event, [Map<String, Object?>? otherData]) {
@@ -200,9 +237,9 @@ class ViewScreenEvent {
       } else {
         _sdkMap[r"$url"] = '$result/$widgetName';
       }
-      if (trackProperties != null) {
-        _sdkMap.addEntries(trackProperties!.entries);
-      }
+    }
+    if (trackProperties != null) {
+      _sdkMap.addEntries(trackProperties!.entries);
     }
     return _sdkMap;
   }
@@ -220,4 +257,13 @@ class ViewScreenEvent {
       return '$result/$widgetName';
     }
   }
+}
+
+///用于记录页面浏览的周期
+abstract class ViewScreenObserver {
+  /// [previousEvent] 触发页面浏览事件前的页面信息
+  void onBeforeViewScreen(ViewScreenEvent? previousEvent) {}
+
+  ///[newEvent] 触发页面浏览后的页面信息
+  void onAfterViewScreen(ViewScreenEvent? newEvent) {}
 }

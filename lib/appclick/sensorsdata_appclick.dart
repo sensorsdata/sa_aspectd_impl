@@ -8,6 +8,7 @@ import 'package:sensors_analytics_flutter_plugin/sensors_analytics_flutter_plugi
 
 import '../common/sensorsdata_common.dart';
 import '../common/sensorsdata_logger.dart';
+import '../config/sensorsdata_autotrack_config.dart';
 import '../visualized/sensorsdata_visualized_properties.dart';
 
 @pragma("vm:entry-point")
@@ -51,13 +52,18 @@ class AppClickResolver {
     _prePointerCode = _curPointerCode;
   }
 
-  void trackClick(String? eventName) {
+  void trackClick(String? eventName) async{
     if (eventName == "onTap") {
       contentText = null;
       searchStop = false;
       elementInfoMap.clear();
       elementTypeWidget = null;
       try {
+        //添加 $AppClick 忽略
+        if(await SensorsAnalyticsAutoTrackConfig.getInstance().isAutoTrackClickIgnored()){
+          return;
+        }
+
         RenderObject renderObject = hitTestEntry.target as RenderObject;
         DebugCreator debugCreator = renderObject.debugCreator as DebugCreator;
         //TODO 此处可能返回的值为空，具体什么时候为空，目前还未复现出来，后面需要额外关注
@@ -86,8 +92,9 @@ class AppClickResolver {
         SensorsAnalyticsFlutterPlugin.track(r"$AppClick", elementInfoMap);
       } catch (e, s) {
         SaLogger.e("SensorsAnalytics Exception Report", stackTrace: s, error: e);
+      } finally {
+        _resetAppClick();
       }
-      _resetAppClick();
     }
   }
 
