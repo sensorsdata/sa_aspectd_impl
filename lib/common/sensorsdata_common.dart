@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:sa_aspectd_impl/common/sensorsdata_logger.dart';
 
 import '../sa_autotrack.dart' show isProjectCreatedElement;
 
 @pragma("vm:entry-point")
 class SAUtils {
-  static const String FLUTTER_AUTOTRACK_VERSION = "2.1.1";
+  static const String FLUTTER_AUTOTRACK_VERSION = "2.2.0";
   static final _deviceInfoMap = <String, Object>{};
   static bool hasAddedFlutterPluginVersion = false;
 
@@ -151,10 +150,7 @@ class SAUtils {
   ///判断是否是 GestureDetector
   static bool isGestureDetector(Element element) {
     Widget widget = element.widget;
-    return widget is GestureDetector &&
-        widget.onTap != null &&
-        widget.onLongPress == null &&
-        widget.onDoubleTap == null;
+    return widget is GestureDetector && widget.onTap != null && widget.onLongPress == null && widget.onDoubleTap == null;
   }
 
   ///判断是否项目中元素
@@ -277,6 +273,16 @@ extension ListExt<E> on List<E> {
     for (E e in this) {
       if (f(e)) return;
     }
+  }
+
+  E? lastWhereOrNull(bool test(E element)) {
+    if (this.isEmpty) {
+      return null;
+    }
+    for (int index = length - 1; index >= 0; index--) {
+      if (test(this[index])) return this[index];
+    }
+    return null;
   }
 }
 
