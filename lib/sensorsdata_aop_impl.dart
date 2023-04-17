@@ -1,6 +1,7 @@
 import 'package:sa_aspectd_impl/appclick/sensorsdata_appclick.dart';
 import 'package:sa_aspectd_impl/viewscreen/sensorsdata_viewscreen_bottombar.dart';
 import 'aop/aop.dart';
+import 'common/sensorsdata_logger.dart';
 import 'sa_autotrack.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -89,24 +90,34 @@ class SensorsAnalyticsAOP {
     return result;
   }
 
-  @Execute("package:flutter/src/widgets/framework.dart", "RenderObjectElement", "-mount")
+  @Execute("package:flutter/src/widgets/framework.dart", "RenderObjectElement", "-attachRenderObject")
   @pragma('vm:entry-point')
-  void _hookRenderObjectElementMount(PointCut pointCut) {
-    Element element = pointCut.target as Element;
-    pointCut.proceed();
-    if (kReleaseMode || kProfileMode) {
-      element.renderObject!.debugCreator = DebugCreator(element);
+  dynamic _hookRenderObjectElementMount(PointCut pointCut) {
+    try {
+      if (kReleaseMode || kProfileMode) {
+        Element element = pointCut.target as Element;
+        element.renderObject!.debugCreator = DebugCreator(element);
+      }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report", stackTrace: s, error: e);
     }
+    dynamic result = pointCut.proceed();
+    return result;
   }
 
-  @Execute('package:flutter/src/widgets/framework.dart', 'RenderObjectElement', '-update')
+  @Execute('package:flutter/src/widgets/framework.dart', 'RenderObjectElement', '-_performRebuild')
   @pragma('vm:entry-point')
-  void _hookRenderObjectElementUpdate(PointCut pointCut) {
-    Element element = pointCut.target as Element;
-    pointCut.proceed();
-    if (kReleaseMode || kProfileMode) {
-      element.renderObject!.debugCreator = DebugCreator(element);
+  dynamic _hookRenderObjectElementUpdate(PointCut pointCut) {
+    try {
+      if (kReleaseMode || kProfileMode) {
+        Element element = pointCut.target as Element;
+        element.renderObject!.debugCreator = DebugCreator(element);
+      }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report", stackTrace: s, error: e);
     }
+    dynamic result = pointCut.proceed();
+    return result;
   }
 
   ///初始化一个 frame callback，用于获取刷新的时机
