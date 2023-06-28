@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:sa_aspectd_impl/common/sensorsdata_common.dart';
 
 import 'sensorsdata_logger.dart';
+import 'dart:io' show Platform;
+
 
 ///作用：用于计算页面元素信息的文件
 class PageElementResolver {
@@ -47,7 +49,7 @@ class PageElementResolver {
       level++;
       //1.设置当前节点信息
       ElementNode vNode = ElementNode(element);
-      if (element.widget is Offstage) {
+      if (element.widget is Offstage || element.widget.runtimeType.toString() == "Visibility") {
         vNode.dataNeedForChild = element;
       } else {
         vNode.dataNeedForChild = parentNode.dataNeedForChild;
@@ -86,6 +88,19 @@ class PageElementResolver {
     if (element.widget is ExpansionPanelList) {
       return true;
     }
+    //对于 Dart 3.0 以上的版本不使用这种方式判断
+    try{
+      var version = Platform.version;
+      if (version.isNotEmpty) {
+        var v = int.parse(version.characters.first);
+        if (v >= 3) {
+          return false;
+        }
+      }
+    } catch (e, s) {
+      SaLogger.w("SensorsAnalytics can not get dart runtime version from ${Platform.version}");
+    }
+
     //针对 Indexed Stack，防止获得 Stack 中所有的结果，根据 indexed 选择需要获取的 Element
     if (parentNode != null && parentNode.element.widget is IndexedStack) {
       IndexedStack stack = parentNode.element.widget as IndexedStack;
@@ -184,7 +199,7 @@ class ElementNode {
   bool _childrenAlsoAdd = false;
 
   ///有些数据需要子元素也知道，为了减少向上查找带来的性能消耗，将这些信息封装在此，
-  ///方便做业务逻辑判断。比如 Offstage，需要子元素知道 Offstage 的显示状态，
+  ///方便做业务逻辑判断。比如 Offstage/Visibility，需要子元素知道 Offstage 的显示状态，
   ///从而确定子元素是否应该将其信息发送给服务端。
   dynamic dataNeedForChild;
 
