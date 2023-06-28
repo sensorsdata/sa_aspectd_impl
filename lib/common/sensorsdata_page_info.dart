@@ -249,6 +249,7 @@ class PageInfoManager {
   bool _isElementShouldSend(ElementNode node) {
     Widget widget = node.element.widget;
     return _isOffstageElementAndShouldSend(node) &&
+        _isVisibleElementAndShouldSend(node) &&
         (SAUtils.isProjectElement(node.element) || SAUtils.isListOrGrid(node.element) || widget is KeyedSubtree || widget is GestureDetector);
   }
 
@@ -276,6 +277,17 @@ class PageInfoManager {
       if (element.widget is Offstage) {
         Offstage offstage = element.widget as Offstage;
         return !offstage.offstage;
+      }
+    }
+    return true;
+  }
+
+  bool _isVisibleElementAndShouldSend(ElementNode node) {
+    if (node.dataNeedForChild != null && node.dataNeedForChild is Element) {
+      Element element = node.dataNeedForChild;
+      if (element.widget.runtimeType.toString() == "Visibility") {
+        dynamic visibility = element.widget ;
+        return visibility.visible;
       }
     }
     return true;
