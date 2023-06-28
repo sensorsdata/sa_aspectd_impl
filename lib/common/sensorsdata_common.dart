@@ -7,7 +7,7 @@ import '../sa_autotrack.dart' show isProjectCreatedElement;
 
 @pragma("vm:entry-point")
 class SAUtils {
-  static const String FLUTTER_AUTOTRACK_VERSION = "2.2.1";
+  static const String FLUTTER_AUTOTRACK_VERSION = "2.3.0";
   static final _deviceInfoMap = <String, Object>{};
   static bool hasAddedFlutterPluginVersion = false;
 

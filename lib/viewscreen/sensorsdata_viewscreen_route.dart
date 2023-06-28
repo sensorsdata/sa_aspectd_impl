@@ -332,6 +332,11 @@ class RouteViewScreenResolver {
     if (cache == null) {
       return;
     }
+    if (cache.eventInfo == null) {
+      SaLogger.w(
+          "_trackViewScreen 's cache.eventInfo is null, this maybe affect view screen. if you fount the viewscreen is not triggered, please contact us.");
+      return;
+    }
     Map<String, dynamic>? map = cache.eventInfo!.toSDKMap()!;
     SAUtils.setupLibPluginVersion(map);
 

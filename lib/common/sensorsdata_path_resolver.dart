@@ -12,7 +12,7 @@ class PathResolver {
   ElementChecker? _checker;
   bool _isFoundExpansionPanelList = false;
 
-  ///if current path contains Offstage widget, and it's offstage field is true, we should ignore this Element
+  ///if current path contains Offstage/Visibility widget, and it's offstage field is true, we should ignore this Element
   bool _shouldIgnore = false;
 
   ///check current element is contained in SliverList or SliverGrid
@@ -41,6 +41,10 @@ class PathResolver {
         if (element.widget is Offstage) {
           Offstage offstage = element.widget as Offstage;
           _shouldIgnore = offstage.offstage;
+        }
+        if (element.widget.runtimeType.toString() == "Visibility") {
+          dynamic visibility = element.widget;
+          _shouldIgnore = visibility.visible;
         }
         int slotValue = SAUtils.getSlotValue(element);
         //1. if element has multi children
