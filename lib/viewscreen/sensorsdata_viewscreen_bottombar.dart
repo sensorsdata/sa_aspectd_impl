@@ -91,17 +91,24 @@ class BottomBarViewScreenResolver {
   }
 
   void _getBottomAppBar(Element element) {
-    if (element.widget is AppBar) {
-      appTitleWidget = (element.widget as AppBar).title;
-    }
-    if (element.widget == appTitleWidget) {
-      _getBottomAppBarElementContentByType(element);
-      if (bottomBarContentList.isNotEmpty) {
-        String result = bottomBarContentList.join("-");
-        appBarTitle = result;
+    try {
+      if (!element.mounted) {
+        return;
       }
-    } else {
-      element.visitChildElements(_getBottomAppBar);
+      if (element.widget is AppBar) {
+        appTitleWidget = (element.widget as AppBar).title;
+      }
+      if (element.widget == appTitleWidget) {
+        _getBottomAppBarElementContentByType(element);
+        if (bottomBarContentList.isNotEmpty) {
+          String result = bottomBarContentList.join("-");
+          appBarTitle = result;
+        }
+      } else {
+        element.visitChildElements(_getBottomAppBar);
+      }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
   }
 

@@ -30,6 +30,9 @@ class PathResolver {
         if (element == RouteViewScreenResolver.getInstance().lastViewScreenContext) {
           return false;
         }
+        if(!element.mounted){
+          return false;
+        }
         //可视化不支持类似操作
         if (element.widget is ExpansionPanelList) {
           _isFoundExpansionPanelList = true;

@@ -58,25 +58,29 @@ class PageInfoManager {
 
   ///根据 Node 计算路径信息
   String getPathFromNode(ElementNode node) {
-    if (node.path != null) {
-      return node.path!;
-    }
-    List<String> result = [];
-    ElementNode? prevNode;
-    ElementNode? currentNode = node;
-    bool isDashSet = false;
-    do {
-      Element element = currentNode!.element;
-      print(element.runtimeType.toString());
-      if (!isDashSet && prevNode != null && (element.widget is ListView || element.widget is GridView)) {
-        result.removeAt(0);
-        result.insertAtFirst("${SAUtils.runtimeStr(prevNode.element)}[-]");
-        isDashSet = true;
+    try {
+      if (node.path != null) {
+        return node.path!;
       }
-      result.insertAtFirst("${SAUtils.runtimeStr(currentNode.element)}[${currentNode.slot}]");
-      prevNode = currentNode;
-    } while ((currentNode = currentNode.parentNode) != null);
-    node.path = result.join("/");
+      List<String> result = [];
+      ElementNode? prevNode;
+      ElementNode? currentNode = node;
+      bool isDashSet = false;
+      do {
+        Element element = currentNode!.element;
+        print(element.runtimeType.toString());
+        if (!isDashSet && prevNode != null && element.mounted && (element.widget is ListView || element.widget is GridView)) {
+          result.removeAt(0);
+          result.insertAtFirst("${SAUtils.runtimeStr(prevNode.element)}[-]");
+          isDashSet = true;
+        }
+        result.insertAtFirst("${SAUtils.runtimeStr(currentNode.element)}[${currentNode.slot}]");
+        prevNode = currentNode;
+      } while ((currentNode = currentNode.parentNode) != null);
+      node.path = result.join("/");
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
+    }
     return node.path!;
   }
 
@@ -138,7 +142,7 @@ class PageInfoManager {
   void _updatePathAndSubElements(ElementNode node, VisualizedItemInfo itemInfo) {
     //如果当前 node 是 SliverList 的直接子元素
     //此时增加 sub elements 参数
-    if (node.element.widget is KeyedSubtree && node.elementPosition != null) {
+    if (node.element.mounted && node.element.widget is KeyedSubtree && node.elementPosition != null) {
       var ids = <String>[];
       node.subNodeList?.forEach((subNode) {
         _setAllSubNodeIds(subNode, ids);
@@ -152,8 +156,12 @@ class PageInfoManager {
   void _setAllSubNodeIds(ElementNode node, List<String> idList) {
     idList.add(node.id!);
     //当遍历到下一个 ListView 的时候就停止
-    if (node.element.widget is KeyedSubtree && node.parentNode != null && SAUtils.isListOrGrid(node.parentNode!.element)) {
-      return;
+    try {
+      if (node.element.mounted && node.element.widget is KeyedSubtree && node.parentNode != null && SAUtils.isListOrGrid(node.parentNode!.element)) {
+        return;
+      }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
     if (node.subNodeList != null) {
       node.subNodeList!.forEach((element) {
@@ -184,7 +192,7 @@ class PageInfoManager {
     //String? elementContent = SAUtils.resolvingWidgetContent(element, searchGestureDetector: false);
     itemInfo.elementContent = node.content;
     itemInfo.level = node.level;
-    if (element.widget is GestureDetector) {
+    if (element.mounted && element.widget is GestureDetector) {
       itemInfo.clickable = _isIOSTopStatusBarGestureDetector(node, itemInfo);
     }
 
@@ -274,7 +282,7 @@ class PageInfoManager {
   bool _isOffstageElementAndShouldSend(ElementNode node) {
     if (node.dataNeedForChild != null && node.dataNeedForChild is Element) {
       Element element = node.dataNeedForChild;
-      if (element.widget is Offstage) {
+      if (element.mounted && element.widget is Offstage) {
         Offstage offstage = element.widget as Offstage;
         return !offstage.offstage;
       }
@@ -286,7 +294,7 @@ class PageInfoManager {
     if (node.dataNeedForChild != null && node.dataNeedForChild is Element) {
       Element element = node.dataNeedForChild;
       if (element.widget.runtimeType.toString() == "Visibility") {
-        dynamic visibility = element.widget ;
+        dynamic visibility = element.widget;
         return visibility.visible;
       }
     }

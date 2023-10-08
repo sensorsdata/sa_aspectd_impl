@@ -7,7 +7,7 @@ import '../sa_autotrack.dart' show isProjectCreatedElement;
 
 @pragma("vm:entry-point")
 class SAUtils {
-  static const String FLUTTER_AUTOTRACK_VERSION = "2.3.0";
+  static const String FLUTTER_AUTOTRACK_VERSION = "2.4.0";
   static final _deviceInfoMap = <String, Object>{};
   static bool hasAddedFlutterPluginVersion = false;
 
@@ -141,23 +141,46 @@ class SAUtils {
 
   ///判断 Element 是否存可能存在多个元素
   static bool isElementHasChildren(Element element) {
-    return element is SliverMultiBoxAdaptorElement ||
-        element is MultiChildRenderObjectElement ||
-        element is ListWheelElement ||
-        element.widget is Table;
+    try {
+      return element is SliverMultiBoxAdaptorElement ||
+          element is MultiChildRenderObjectElement ||
+          element is ListWheelElement ||
+          element.mounted && element.widget is Table;
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
+    }
+    return false;
   }
 
   ///判断是否是 GestureDetector
   static bool isGestureDetector(Element element) {
-    Widget widget = element.widget;
-    return widget is GestureDetector && widget.onTap != null && widget.onLongPress == null && widget.onDoubleTap == null;
+    try {
+      if (!element.mounted) {
+        return false;
+      }
+      Widget widget = element.widget;
+      return widget is GestureDetector && widget.onTap != null && widget.onLongPress == null && widget.onDoubleTap == null;
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
+    }
+    return false;
   }
 
   ///判断是否项目中元素
   static bool isProjectElement(Element element) => isProjectCreatedElement(element);
 
   ///判断是否是 List 或 Grid
-  static bool isListOrGrid(Element element) => element.widget is SliverList || element.widget is SliverGrid;
+  static bool isListOrGrid(Element element) {
+    try {
+      if (!element.mounted) {
+        return false;
+      }
+      return element.widget is SliverList || element.widget is SliverGrid;
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
+    }
+    return false;
+  }
 }
 
 ///Helper class to resolving element content.

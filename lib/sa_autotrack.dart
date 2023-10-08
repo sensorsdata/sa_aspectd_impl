@@ -82,9 +82,13 @@ class _SALocation {
 }
 
 bool isProjectCreatedElement(Element element) {
-  if (element.widget is _SAHasCreationLocation) {
-    _SAHasCreationLocation hasCreationLocation = element.widget as _SAHasCreationLocation;
-    return hasCreationLocation._salocation.isProjectRoot();
+  try {
+    if (element.mounted && element.widget is _SAHasCreationLocation) {
+      _SAHasCreationLocation hasCreationLocation = element.widget as _SAHasCreationLocation;
+      return hasCreationLocation._salocation.isProjectRoot();
+    }
+  } catch (e, s) {
+    SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
   }
   return false;
 }
