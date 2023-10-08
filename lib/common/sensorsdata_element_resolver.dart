@@ -7,7 +7,6 @@ import 'package:sa_aspectd_impl/common/sensorsdata_common.dart';
 import 'sensorsdata_logger.dart';
 import 'dart:io' show Platform;
 
-
 ///作用：用于计算页面元素信息的文件
 class PageElementResolver {
   var projectElementNodeList = <ElementNode>[];
@@ -39,57 +38,65 @@ class PageElementResolver {
 
   void _visitChild(Element element, ElementNode parentNode, {int level = 1}) {
     //对特定的元素做特殊处理，如果是特殊元素就不对起采集元素信息
-    if (_specialWidgetTest(element, parentNode)) {
-      return;
+    try {
+      if (_specialWidgetTest(element, parentNode)) {
+        return;
+      }
+      elementLevel++;
+
+      //判断是否是项目所建元素，或者是否是 GestureDetector
+      if (_shouldAddToNode(element, parentNode)) {
+        level++;
+        //1.设置当前节点信息
+        ElementNode vNode = ElementNode(element);
+        if (element.mounted && (element.widget is Offstage || element.widget.runtimeType.toString() == "Visibility")) {
+          vNode.dataNeedForChild = element;
+        } else {
+          vNode.dataNeedForChild = parentNode.dataNeedForChild;
+        }
+        //当前节点所在的位置由父节点计算得出
+        if (parentNode.subNodeList == null) {
+          parentNode.subNodeList = [];
+          vNode.position = 0;
+        } else {
+          vNode.position = (parentNode.subNodeList!.length) + 1;
+        }
+        vNode.level = elementLevel;
+        vNode.parentNode = parentNode;
+        vNode.slot = SAUtils.getSlotValue(element);
+        _setNodePath(vNode);
+        projectElementNodeList.add(vNode);
+        if (SAUtils.isElementHasChildren(element)) {
+          vNode._childrenAlsoAdd = true;
+        }
+
+        //2.对父节点进行操作
+        parentNode.subNodeList!.add(vNode);
+        //将当前节点赋值给父节点，用于下一次遍历
+        parentNode = vNode;
+      }
+
+      element.visitChildElements((element) {
+        _visitChild(element, parentNode, level: level);
+      });
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
-    elementLevel++;
-
-    //判断是否是项目所建元素，或者是否是 GestureDetector
-    if (_shouldAddToNode(element, parentNode)) {
-      level++;
-      //1.设置当前节点信息
-      ElementNode vNode = ElementNode(element);
-      if (element.widget is Offstage || element.widget.runtimeType.toString() == "Visibility") {
-        vNode.dataNeedForChild = element;
-      } else {
-        vNode.dataNeedForChild = parentNode.dataNeedForChild;
-      }
-      //当前节点所在的位置由父节点计算得出
-      if (parentNode.subNodeList == null) {
-        parentNode.subNodeList = [];
-        vNode.position = 0;
-      } else {
-        vNode.position = (parentNode.subNodeList!.length) + 1;
-      }
-      vNode.level = elementLevel;
-      vNode.parentNode = parentNode;
-      vNode.slot = SAUtils.getSlotValue(element);
-      _setNodePath(vNode);
-      projectElementNodeList.add(vNode);
-      if (SAUtils.isElementHasChildren(element)) {
-        vNode._childrenAlsoAdd = true;
-      }
-
-      //2.对父节点进行操作
-      parentNode.subNodeList!.add(vNode);
-      //将当前节点赋值给父节点，用于下一次遍历
-      parentNode = vNode;
-    }
-
-    element.visitChildElements((element) {
-      _visitChild(element, parentNode, level: level);
-    });
   }
 
   ///判断元素是否是特殊类型，如果是特殊类型，并且不希望再遍历子元素就返回 true
   bool _specialWidgetTest(Element element, ElementNode? parentNode) {
     //因为 ExpansionPanelList 路径存在变动的情况，目前可视化全埋点不对其支持，
     //忽略其后的所有元素信息，后面有方案再做处理
-    if (element.widget is ExpansionPanelList) {
-      return true;
+    try {
+      if (element.mounted && element.widget is ExpansionPanelList) {
+        return true;
+      }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
     //对于 Dart 3.0 以上的版本不使用这种方式判断
-    try{
+    try {
       var version = Platform.version;
       if (version.isNotEmpty) {
         var v = int.parse(version.characters.first);
@@ -102,41 +109,49 @@ class PageElementResolver {
     }
 
     //针对 Indexed Stack，防止获得 Stack 中所有的结果，根据 indexed 选择需要获取的 Element
-    if (parentNode != null && parentNode.element.widget is IndexedStack) {
-      IndexedStack stack = parentNode.element.widget as IndexedStack;
-      if (stack.index != SAUtils.getSlotValue(element)) {
-        return true;
+    try {
+      if (parentNode != null && parentNode.element.mounted && parentNode.element.widget is IndexedStack) {
+        IndexedStack stack = parentNode.element.widget as IndexedStack;
+        if (stack.index != SAUtils.getSlotValue(element)) {
+          return true;
+        }
       }
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
     return false;
   }
 
   ///设置 Node 的 Path 信息
   void _setNodePath(ElementNode node) {
-    String result;
-    //当列表嵌套列表时，需要更新原路径中的 [-]
-    bool _resetParentPath = false;
-    //如果是 SliverList 中的第一个子元素，路径中就设置[-]
-    if (node.element.widget is KeyedSubtree && node.parentNode != null && SAUtils.isListOrGrid(node.parentNode!.element)) {
-      result = "${SAUtils.runtimeStr(node.element)}[-]";
-      node.elementPosition = node.slot;
-      _resetParentPath = true;
-    } else {
-      result = "${SAUtils.runtimeStr(node.element)}[${node.slot}]";
-      //子元素继承自父节点的元素位置，适用于列表元素
-      if (node.parentNode != null) {
-        node.elementPosition = node.parentNode!.elementPosition;
+    try {
+      String result;
+      //当列表嵌套列表时，需要更新原路径中的 [-]
+      bool _resetParentPath = false;
+      //如果是 SliverList 中的第一个子元素，路径中就设置[-]
+      if (node.element.mounted && node.element.widget is KeyedSubtree && node.parentNode != null && SAUtils.isListOrGrid(node.parentNode!.element)) {
+        result = "${SAUtils.runtimeStr(node.element)}[-]";
+        node.elementPosition = node.slot;
+        _resetParentPath = true;
+      } else {
+        result = "${SAUtils.runtimeStr(node.element)}[${node.slot}]";
+        //子元素继承自父节点的元素位置，适用于列表元素
+        if (node.parentNode != null) {
+          node.elementPosition = node.parentNode!.elementPosition;
+        }
       }
-    }
-    if (node.parentNode != null && node.parentNode!.path != null && node.parentNode!.path!.isNotEmpty) {
-      String parentPath = node.parentNode!.path!;
-      if (_resetParentPath && parentPath.contains("-")) {
-        parentPath = parentPath.replaceAll("-", node.parentNode!.elementPosition!.toString());
+      if (node.parentNode != null && node.parentNode!.path != null && node.parentNode!.path!.isNotEmpty) {
+        String parentPath = node.parentNode!.path!;
+        if (_resetParentPath && parentPath.contains("-")) {
+          parentPath = parentPath.replaceAll("-", node.parentNode!.elementPosition!.toString());
+        }
+        result = "$parentPath/$result";
       }
-      result = "$parentPath/$result";
+      node.path = result;
+      node.id = _random.nextInt(10000000).toString() + "${node.elementPosition ?? node.slot}".toString();
+    } catch (e, s) {
+      SaLogger.e("SensorsAnalytics Exception Report: ", stackTrace: s, error: e);
     }
-    node.path = result;
-    node.id = _random.nextInt(10000000).toString() + "${node.elementPosition ?? node.slot}".toString();
   }
 
   ///判断 Element 是不是特定的元素，如果是就添加为 Node
