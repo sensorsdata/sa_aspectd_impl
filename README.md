@@ -1,5 +1,5 @@
-![logo](https://opensource.sensorsdata.cn/wp-content/uploads/logo.png)
-<br><br>
+<img src="https://ow-file.sensorsdata.cn/www/home/header/sensors_header_icon.svg" width="200" >
+
 [![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-android.svg)](https://github.com/sensorsdata/sa-sdk-android/blob/master/LICENSE)
 
 ## 神策简介
@@ -18,16 +18,6 @@ Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10
 ## 集成文档
 请参考神策官网 [Flutter 全埋点 SDK 集成文档](https://manual.sensorsdata.cn/sa/latest/flutter-109576726.html)。
 
-## 讨论  
-| 扫码加入 Flutter 埋点讨论群（备注 AspectD） |
-| ------ |
-![ 微信讨论群 ](https://opensource.sensorsdata.cn/wp-content/uploads/ContentCommonPic_2.png) |
-
-## 公众号  
-
-| 扫码关注<br>神策数据开源社区 | 扫码关注<br>神策数据开源社区服务号 |
-| ------ | ------ |
-|![ 微信订阅号 ](https://opensource.sensorsdata.cn/wp-content/uploads/ContentCommonPic_3.png) | ![ 微信服务号 ](https://opensource.sensorsdata.cn/wp-content/uploads/ContentCommonPic_4.png) |
 
 ## 感谢  
 - [AspectD](https://github.com/XianyuTech/aspectd) 
@@ -35,7 +25,7 @@ Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10
 
 ## License  
 
-Copyright 2015－2023 Sensors Data Inc.
+Copyright 2015－2024 Sensors Data Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
