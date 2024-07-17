@@ -15,9 +15,6 @@ Flutter 全埋点 SDK 是一款支持 Flutter 项目进行全埋点(应用启动
 ## Flutter 全埋点支持的版本
 Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10.3、2.10.5、3.0.0、3.0.5、3.3.0、3.3.1、3.3.4、3.3.5、3.3.6、3.3.10、3.7.0、3.7.6、3.7.10、3.10.0、3.10.5`
 
-## 集成文档
-请参考神策官网 [Flutter 全埋点 SDK 集成文档](https://manual.sensorsdata.cn/sa/latest/flutter-109576726.html)。
-
 
 ## 感谢  
 - [AspectD](https://github.com/XianyuTech/aspectd) 
