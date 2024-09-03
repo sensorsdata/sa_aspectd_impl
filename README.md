@@ -21,9 +21,4 @@ Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10
 
 
 ## License  
-
-Copyright 2015－2024 Sensors Data Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+[License 协议](https://github.com/sensorsdata/sa_aspectd_impl/blob/master/LICENSE)
