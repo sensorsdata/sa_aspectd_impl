@@ -12,6 +12,15 @@
 
 Flutter 全埋点 SDK 是一款支持 Flutter 项目进行全埋点(应用启动、退出、元素点击、页面切换)事件采集及可视化全埋点功能的 SDK
 
+## 神策埋点 SDK 官网
+如需了解神策埋点 SDK 的更多商业授权信息，请访问[神策埋点 SDK 官网](https://jssdk.debugbox.sensorsdata.cn/)获取更多详细信息。
+
+## 联系我们
+若您有商业合作或产品集成需求，请通过下面的渠道联系我们获取专业服务与支持。
+
+| 加微信号：skycode008，或扫码添加联系人 <img src="https://github.com/sensorsdata/sa-sdk-android/blob/master/WechatIMG180.jpg" width="300" height="450" /> | 扫码关注「神策埋点 SDK」公众号 ![gzh](https://github.com/sensorsdata/sa-sdk-android/blob/master/gzh.jpeg) |
+| ------ | ------ |
+
 ## Flutter 全埋点支持的版本
 Flutter：`2.0.6、2.2.2、2.2.3、2.5.1、2.5.3、2.8.0、2.8.1、2.10.0、2.10.3、2.10.5、3.0.0、3.0.5、3.3.0、3.3.1、3.3.4、3.3.5、3.3.6、3.3.10、3.7.0、3.7.6、3.7.10、3.10.0、3.10.5`
 
